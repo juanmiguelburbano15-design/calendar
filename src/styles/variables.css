@@ -1,0 +1,29 @@
+:root {
+  --color-primary: #0D6EFD;
+  --color-primary-light: #E8F2FF;
+
+  --color-background: #F5F7FB;
+  --color-surface: #FFFFFF;
+
+  --color-text: #111B35;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+
+  --color-danger: #EF4444;
+  --color-success: #16A34A;
+
+  --category-university: #2563EB;
+  --category-university-bg: #DBEAFE;
+
+  --category-work: #16A34A;
+  --category-work-bg: #DCFCE7;
+
+  --category-personal: #9333EA;
+  --category-personal-bg: #F3E8FF;
+
+  --category-health: #E11D48;
+  --category-health-bg: #FFE4E6;
+
+  --category-other: #EA580C;
+  --category-other-bg: #FFEDD5;
+}
