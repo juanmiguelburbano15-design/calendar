@@ -1,10 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intento</title>
-</head>
-<body>
-</body>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Calendario web para organizar actividades personales, universitarias y laborales." />
+    <title>Mi Calendario</title>
+    <link rel="stylesheet" href="src/styles/main.css" />
+    <link rel="stylesheet" href="src/styles/calendar-views.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegación principal">
+        <a class="brand" href="#calendario" aria-label="Ir al calendario">
+          <span class="brand__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/>
+            </svg>
+          </span>
+          <span>Mi Calendario</span>
+        </a>
+
+        <nav class="main-nav" aria-label="Secciones de la aplicación">
+          <a class="nav-item nav-item--active" href="#calendario" aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+            </svg>
+            <span>Calendario</span>
+          </a>
+
+          <button class="nav-item" type="button" disabled title="Módulo disponible próximamente">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M8 7h11M8 12h11M8 17h7M4 7h.01M4 12h.01M4 17h.01" />
+            </svg>
+            <span>Mis eventos</span>
+            <span class="nav-item__badge">Pronto</span>
+          </button>
+
+          <button class="nav-item" type="button" disabled title="Módulo disponible próximamente">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.57V21h-4v-.06a1.7 1.7 0 0 0-1.03-1.57 1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.57-1.03H3v-4h.03A1.7 1.7 0 0 0 4.6 8.94a1.7 1.7 0 0 0-.34-1.88L4.2 7l2.83-2.83.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 10 3h4a1.7 1.7 0 0 0 1.03 1.57 1.7 1.7 0 0 0 1.88-.34l.06-.06L19.8 7l-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 21 9.97V14a1.7 1.7 0 0 0-1.6 1Z" />
+            </svg>
+            <span>Configuración</span>
+            <span class="nav-item__badge">Pronto</span>
+          </button>
+        </nav>
+
+        <section class="categories" aria-labelledby="categories-title">
+          <h2 id="categories-title">Categorías</h2>
+          <ul class="category-list">
+            <li><span class="category-dot category-dot--university"></span>Universidad</li>
+            <li>
+              <span class="category-dot category-dot--work"></span>Trabajo
+            </li>
+            <li>
+              <span class="category-dot category-dot--personal"></span>Personal
+            </li>
+            <li>
+              <span class="category-dot category-dot--health"></span>Salud
+            </li>
+            <li><span class="category-dot category-dot--other"></span>Otros</li>
+          </ul>
+        </section>
+      </aside>
+
+      <main id="calendario" class="calendar-workspace">
+        <section class="calendar-card" aria-labelledby="calendar-title">
+          <header class="calendar-toolbar">
+            <div>
+              <p id="calendar-eyebrow" class="eyebrow">Vista mensual</p>
+              <h1 id="calendar-title" aria-live="polite">Calendario</h1>
+            </div>
+
+            <div class="calendar-actions">
+              <div class="month-navigation" aria-label="Navegación del calendario">
+                <button id="previous-month" class="icon-button" type="button" aria-label="Ver mes anterior" title="Mes anterior">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </button>
+                <button id="today-button" class="secondary-button" type="button">
+                  Hoy
+                </button>
+                <button id="next-month" class="icon-button" type="button" aria-label="Ver mes siguiente" title="Mes siguiente">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="view-switcher" role="group" aria-label="Cambiar vista del calendario">
+                <button class="view-switcher__button view-switcher__button--active" type="button" data-calendar-view="month" aria-pressed="true">Mes</button>
+                <button class="view-switcher__button" type="button" data-calendar-view="week" aria-pressed="false">Semana</button>
+                <button class="view-switcher__button" type="button" data-calendar-view="day" aria-pressed="false">Día</button>
+              </div>
+
+              <button class="primary-button" type="button" disabled title="La gestión de eventos se implementará en una próxima fase">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Nuevo evento
+              </button>
+            </div>
+          </header>
+
+          <div id="month-view" class="calendar-view-panel">
+            <div class="calendar-scroll" tabindex="0" aria-label="Calendario desplazable en pantallas pequeñas">
+              <div class="calendar-grid">
+                <div class="weekdays" aria-hidden="true">
+                  <span>Lun</span>
+                  <span>Mar</span>
+                  <span>Mié</span>
+                  <span>Jue</span>
+                  <span>Vie</span>
+                  <span>Sáb</span>
+                  <span>Dom</span>
+                </div>
+                <div id="calendar-days" class="calendar-days" aria-label="Días del mes"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="time-grid-view" class="calendar-view-panel" aria-live="polite" hidden></div>
+        </section>
+      </main>
+
+      <aside class="upcoming-panel" aria-labelledby="upcoming-title">
+        <header class="panel-header">
+          <p class="eyebrow">Agenda</p>
+          <h2 id="upcoming-title">Próximos eventos</h2>
+        </header>
+        <div id="upcoming-events" aria-live="polite"></div>
+      </aside>
+    </div>
+
+    <noscript>Necesitas habilitar JavaScript para utilizar el calendario.</noscript>
+    <script src="src/js/date-utils.js" defer></script>
+    <script src="src/js/event-storage.js" defer></script>
+    <script src="src/js/calendar-view.js" defer></script>
+    <script src="src/js/timeline-utils.js" defer></script>
+    <script src="src/js/time-grid-view.js" defer></script>
+    <script src="src/js/upcoming-events-view.js" defer></script>
+    <script src="script.js" defer></script>
+  </body>
 </html>
