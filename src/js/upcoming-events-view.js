@@ -1,9 +1,21 @@
+/**
+ * Panel lateral de próximos eventos y su estado vacío.
+ */
 (function initializeUpcomingEventsView(global) {
+  /** Renderiza los eventos futuros en orden cronológico. */
   class UpcomingEventsView {
+    /** @param {HTMLElement} container Contenedor del listado. */
     constructor(container) {
       this.container = container;
     }
 
+    /**
+     * Filtra eventos anteriores a hoy y reconstruye el contenido del panel.
+     *
+     * @param {CalendarEvent[]} events Eventos disponibles.
+     * @param {Date} today Fecha actual normalizada.
+     * @returns {void}
+     */
     render(events, today) {
       const { dateUtils, eventStorage } = global.CalendarApp;
       const todayKey = dateUtils.getDateKey(today);
@@ -28,6 +40,7 @@
       this.container.append(list);
     }
 
+    /** @returns {HTMLDivElement} Mensaje mostrado cuando no hay eventos próximos. */
     createEmptyState() {
       const emptyState = document.createElement("div");
       const icon = document.createElement("span");
@@ -45,6 +58,10 @@
       return emptyState;
     }
 
+    /**
+     * @param {CalendarEvent} event Evento que se desea presentar.
+     * @returns {HTMLLIElement} Elemento listo para agregar al listado.
+     */
     createEventItem(event) {
       const { dateUtils, normalizeCategory } = global.CalendarApp;
       const item = document.createElement("li");

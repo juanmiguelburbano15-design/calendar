@@ -1,10 +1,28 @@
+/**
+ * Vista horaria compartida por los modos Semana y Día.
+ */
 (function initializeTimeGridView(global) {
+  /** Renderiza eventos sobre una cuadrícula vertical de horas. */
   class TimeGridView {
+    /**
+     * @param {Object} options Dependencias de la vista.
+     * @param {HTMLElement} options.container Contenedor reemplazado en cada render.
+     * @param {HTMLElement} options.titleElement Título del periodo visible.
+     */
     constructor({ container, titleElement }) {
       this.container = container;
       this.titleElement = titleElement;
     }
 
+    /**
+     * Renderiza una o siete columnas según el modo solicitado.
+     *
+     * @param {Object} state Estado necesario por la vista.
+     * @param {"week"|"day"} state.mode Modo de la cuadrícula.
+     * @param {Date} state.selectedDate Fecha de referencia.
+     * @param {CalendarEvent[]} state.events Eventos disponibles.
+     * @returns {void}
+     */
     render({ mode, selectedDate, events }) {
       const { dateUtils, timelineUtils } = global.CalendarApp;
       const dates = mode === "week" ? dateUtils.getWeekDates(selectedDate) : [selectedDate];
@@ -33,6 +51,11 @@
       this.container.replaceChildren(section);
     }
 
+    /**
+     * @param {Date[]} dates Fechas representadas por las columnas.
+     * @param {Date} selectedDate Fecha seleccionada.
+     * @returns {HTMLDivElement} Encabezado de días.
+     */
     createHeader(dates, selectedDate) {
       const { dateUtils } = global.CalendarApp;
       const header = document.createElement("div");
@@ -67,6 +90,14 @@
       return header;
     }
 
+    /**
+     * Construye las etiquetas horarias, columnas, eventos y marcador actual.
+     *
+     * @param {Date[]} dates Fechas visibles.
+     * @param {CalendarEvent[]} events Eventos ya filtrados al periodo.
+     * @param {{startMinutes: number, endMinutes: number}} range Intervalo horario.
+     * @returns {HTMLDivElement} Cuerpo completo de la cuadrícula.
+     */
     createBody(dates, events, range) {
       const { dateUtils, timelineUtils } = global.CalendarApp;
       const body = document.createElement("div");
@@ -128,6 +159,11 @@
       return body;
     }
 
+    /**
+     * @param {Object} interval Evento con intervalo y carril calculados.
+     * @param {{startMinutes: number, endMinutes: number}} range Intervalo horario.
+     * @returns {HTMLElement} Bloque visual posicionado del evento.
+     */
     createEventBlock(interval, range) {
       const { normalizeCategory, timelineUtils } = global.CalendarApp;
       const metrics = timelineUtils.getBlockMetrics(interval, range);
@@ -161,6 +197,11 @@
       return eventBlock;
     }
 
+    /**
+     * @param {number} currentMinutes Minutos actuales desde medianoche.
+     * @param {{startMinutes: number, endMinutes: number}} range Intervalo visible.
+     * @returns {HTMLSpanElement} Línea indicadora de la hora actual.
+     */
     createCurrentTimeMarker(currentMinutes, range) {
       const { timelineUtils } = global.CalendarApp;
       const marker = document.createElement("span");

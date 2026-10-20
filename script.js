@@ -1,3 +1,10 @@
+/**
+ * Punto de entrada de la aplicación.
+ *
+ * Coordina el estado compartido, las vistas y los controles de navegación.
+ * Las dependencias se obtienen de `window.CalendarApp` porque el proyecto no
+ * utiliza un sistema de módulos ni un proceso de compilación.
+ */
 (function initializeCalendar() {
   const {
     CalendarView,
@@ -13,6 +20,11 @@
     week: "Vista semanal",
   });
 
+  /**
+   * Obtiene la fecha local actual normalizada por las utilidades del proyecto.
+   *
+   * @returns {Date} Fecha local de hoy, fijada al mediodía.
+   */
   function getCurrentDate() {
     const currentDate = new Date();
 
@@ -54,6 +66,14 @@
     document.querySelector("#upcoming-events"),
   );
 
+  /**
+   * Sincroniza los controles y vuelve a dibujar la vista activa.
+   *
+   * La lista de próximos eventos se actualiza siempre, sin importar qué vista
+   * central esté seleccionada.
+   *
+   * @returns {void}
+   */
   function render() {
     const isMonthView = state.activeView === "month";
 
@@ -82,6 +102,11 @@
     upcomingEventsView.render(state.events, getCurrentDate());
   }
 
+  /**
+   * Adapta las etiquetas accesibles de navegación al periodo activo.
+   *
+   * @returns {void}
+   */
   function updateNavigationLabels() {
     const periodName = {
       day: "día",
@@ -95,6 +120,12 @@
     elements.nextButton.title = `${periodName.charAt(0).toUpperCase()}${periodName.slice(1)} siguiente`;
   }
 
+  /**
+   * Selecciona una fecha y mantiene sincronizado el mes visible.
+   *
+   * @param {Date} date Fecha elegida en la cuadrícula mensual.
+   * @returns {void}
+   */
   function selectDate(date) {
     state.selectedDate = date;
 
@@ -105,6 +136,15 @@
     render();
   }
 
+  /**
+   * Desplaza el periodo visible según la vista activa.
+   *
+   * En Mes desplaza meses; en Semana desplaza bloques de siete días; en Día
+   * desplaza días individuales.
+   *
+   * @param {number} amount Cantidad de periodos; normalmente `-1` o `1`.
+   * @returns {void}
+   */
   function changePeriod(amount) {
     if (state.activeView === "month") {
       state.visibleMonth = dateUtils.addMonths(state.visibleMonth, amount);
@@ -117,6 +157,12 @@
     render();
   }
 
+  /**
+   * Cambia la vista central conservando la fecha seleccionada.
+   *
+   * @param {"month"|"week"|"day"} view Identificador de la nueva vista.
+   * @returns {void}
+   */
   function changeView(view) {
     if (!VIEW_LABELS[view] || view === state.activeView) {
       return;
@@ -130,6 +176,11 @@
     render();
   }
 
+  /**
+   * Restablece la selección y el periodo visible a la fecha actual.
+   *
+   * @returns {void}
+   */
   function goToToday() {
     const currentDate = getCurrentDate();
 

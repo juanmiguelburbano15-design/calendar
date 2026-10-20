@@ -1,9 +1,19 @@
+/**
+ * Cálculos de tiempo y distribución usados por las vistas Semana y Día.
+ */
 (function initializeTimelineUtils(global) {
   const DEFAULT_START_MINUTES = 7 * 60;
   const DEFAULT_END_MINUTES = 22 * 60;
   const HOUR_HEIGHT = 56;
   const MIN_EVENT_HEIGHT = 32;
 
+  /**
+   * Convierte una hora de 24 horas a minutos transcurridos desde medianoche.
+   *
+   * @param {unknown} value Hora esperada con formato `HH:mm`.
+   * @param {boolean} [allowEndOfDay=false] Permite `24:00` como límite final.
+   * @returns {number|null} Minutos desde medianoche o `null` si es inválida.
+   */
   function parseTime(value, allowEndOfDay = false) {
     if (allowEndOfDay && value === "24:00") {
       return 24 * 60;
@@ -21,6 +31,16 @@
     return Number(match[1]) * 60 + Number(match[2]);
   }
 
+  /**
+   * Obtiene el intervalo válido de un evento.
+   *
+   * Si falta una hora final posterior al inicio, se aplica una duración visual
+   * de una hora sin modificar el evento original.
+   *
+   * @param {CalendarEvent} event Evento que se desea posicionar.
+   * @returns {{event: CalendarEvent, startMinutes: number, endMinutes: number}|null}
+   * Intervalo calculado o `null` cuando no existe una hora inicial válida.
+   */
   function getEventInterval(event) {
     const startMinutes = parseTime(event.horaInicio);
     if (startMinutes === null) {
@@ -44,6 +64,12 @@
     };
   }
 
+  /**
+   * Calcula el intervalo horario visible e incluye eventos fuera del horario base.
+   *
+   * @param {CalendarEvent[]} events Eventos visibles en la vista actual.
+   * @returns {{startMinutes: number, endMinutes: number}} Límites redondeados a horas.
+   */
   function getVisibleRange(events) {
     const intervals = events.map(getEventInterval).filter(Boolean);
 
@@ -63,12 +89,17 @@
     };
   }
 
+  /**
+   * @param {{startMinutes: number, endMinutes: number}} range Intervalo visible.
+   * @returns {number[]} Marcas horarias expresadas en minutos.
+   */
   function getHourMarks({ startMinutes, endMinutes }) {
     const hourCount = Math.floor((endMinutes - startMinutes) / 60);
 
     return Array.from({ length: hourCount + 1 }, (_, index) => startMinutes + index * 60);
   }
 
+  /** @param {number} minutes @returns {string} Hora con formato `HH:mm`. */
   function formatMinutes(minutes) {
     if (minutes === 24 * 60) {
       return "24:00";
@@ -80,6 +111,18 @@
     return `${String(hours).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
   }
 
+  /**
+   * Asigna carriles a los eventos que se superponen en el tiempo.
+   *
+   * @param {CalendarEvent[]} events Eventos de una sola fecha.
+   * @returns {Array<{
+   *   event: CalendarEvent,
+   *   startMinutes: number,
+   *   endMinutes: number,
+   *   lane: number,
+   *   laneCount: number
+   * }>} Intervalos listos para calcular su posición horizontal.
+   */
   function layoutOverlappingEvents(events) {
     const intervals = events
       .map(getEventInterval)
@@ -126,6 +169,15 @@
     });
   }
 
+  /**
+   * Convierte un intervalo y su carril en medidas CSS para el bloque visual.
+   *
+   * @param {{startMinutes: number, endMinutes: number, lane: number, laneCount: number}} interval
+   * Evento previamente distribuido.
+   * @param {{startMinutes: number, endMinutes: number}} range Intervalo visible.
+   * @returns {{top: number, height: number, leftPercentage: number, widthPercentage: number}}
+   * Posición y tamaño del bloque.
+   */
   function getBlockMetrics(interval, range) {
     const top = ((interval.startMinutes - range.startMinutes) / 60) * HOUR_HEIGHT;
     const rawHeight = ((interval.endMinutes - interval.startMinutes) / 60) * HOUR_HEIGHT;
