@@ -8,6 +8,7 @@
 (function initializeCalendar() {
   const {
     CalendarView,
+    MiniCalendarView,
     TimeGridView,
     UpcomingEventsView,
     dateUtils,
@@ -62,9 +63,19 @@
     container: elements.timeGridView,
     titleElement: document.querySelector("#calendar-title"),
   });
-  const upcomingEventsView = new UpcomingEventsView(
-    document.querySelector("#upcoming-events"),
-  );
+  const miniCalendarView = new MiniCalendarView({
+    container: document.querySelector("#mini-calendar"),
+    nextButton: document.querySelector("#mini-calendar-next"),
+    onNavigate: changePeriod,
+    previousButton: document.querySelector("#mini-calendar-previous"),
+    titleElement: document.querySelector("#mini-calendar-title"),
+    viewTitleElement: document.querySelector("#mini-calendar-view-title"),
+  });
+  const upcomingEventsView = new UpcomingEventsView({
+    countElement: document.querySelector("#upcoming-count"),
+    container: document.querySelector("#upcoming-events"),
+    titleElement: document.querySelector("#upcoming-title"),
+  });
 
   /**
    * Sincroniza los controles y vuelve a dibujar la vista activa.
@@ -99,7 +110,8 @@
       });
     }
 
-    upcomingEventsView.render(state.events, getCurrentDate());
+    miniCalendarView.render(state);
+    upcomingEventsView.render(state);
   }
 
   /**

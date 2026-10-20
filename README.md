@@ -40,7 +40,9 @@ El MVP no utilizará backend, base de datos, autenticación ni dependencias exte
 - Posicionamiento de eventos según su hora y duración.
 - Distribución en columnas cuando existen eventos superpuestos.
 - Ampliación automática del horario para eventos fuera de 07:00 a 22:00.
-- Diseño responsive con sidebar, categorías y panel de próximos eventos.
+- Diseño responsive con sidebar, categorías y panel derecho sincronizado.
+- Mini calendario con navegación compartida que resalta un día en Mes/Día y la semana completa en Semana.
+- Lista del panel derecho filtrada por el mes, la semana o el día visible.
 - Lectura segura de eventos desde `localStorage` mediante la clave `calendario_eventos`.
 - Estado vacío cuando no existen eventos registrados.
 
@@ -62,6 +64,7 @@ calendar/
     │   ├── calendar-view.js
     │   ├── date-utils.js
     │   ├── event-storage.js
+    │   ├── mini-calendar-view.js
     │   ├── time-grid-view.js
     │   ├── timeline-utils.js
     │   └── upcoming-events-view.js
@@ -76,6 +79,7 @@ calendar/
 - `src/js/date-utils.js`: cálculos, comparación y formato de fechas.
 - `src/js/event-storage.js`: lectura y validación de eventos almacenados.
 - `src/js/calendar-view.js`: renderizado de la cuadrícula mensual.
+- `src/js/mini-calendar-view.js`: mini calendario sincronizado del panel derecho.
 - `src/js/timeline-utils.js`: intervalos horarios, posiciones y solapamientos.
 - `src/js/time-grid-view.js`: renderizado reutilizable de Semana y Día.
 - `src/js/upcoming-events-view.js`: estado vacío y listado cronológico de próximos eventos.
@@ -91,7 +95,7 @@ El código JavaScript se ejecuta directamente en el navegador, sin framework, pa
 
 1. `date-utils.js` publica las operaciones de fecha.
 2. `event-storage.js` publica la lectura y ordenamiento de eventos.
-3. `calendar-view.js`, `timeline-utils.js`, `time-grid-view.js` y `upcoming-events-view.js` publican las vistas y cálculos de presentación.
+3. `calendar-view.js`, `timeline-utils.js`, `time-grid-view.js`, `mini-calendar-view.js` y `upcoming-events-view.js` publican las vistas y cálculos de presentación.
 4. `script.js` lee los eventos guardados, crea el estado principal, conecta los botones y ejecuta el primer renderizado.
 
 ### Estado principal
@@ -103,7 +107,7 @@ El código JavaScript se ejecuta directamente en el navegador, sin framework, pa
 - `selectedDate`: fecha seleccionada y referencia para las vistas Semana y Día.
 - `visibleMonth`: mes mostrado en la vista mensual.
 
-La función `render()` sincroniza el selector de vistas, los textos accesibles de navegación, el panel central y la lista de próximos eventos. La navegación anterior/siguiente cambia un mes, siete días o un día según la vista activa. El botón **Hoy** restablece `selectedDate` y `visibleMonth` usando la fecha local del navegador.
+La función `render()` sincroniza el selector de vistas, los textos accesibles de navegación, el panel central, el mini calendario y la lista de eventos del periodo. La navegación anterior/siguiente cambia un mes, siete días o un día según la vista activa. El botón **Hoy** restablece `selectedDate` y `visibleMonth` usando la fecha local del navegador.
 
 ### Responsabilidad de los módulos
 
@@ -147,9 +151,13 @@ Contiene los cálculos compartidos por Semana y Día:
 
 Renderiza la cuadrícula horaria reutilizada por las vistas Semana y Día. Filtra los eventos de las fechas visibles, crea encabezados y columnas, posiciona cada evento con los cálculos de `timeline-utils.js` y dibuja un indicador de la hora actual cuando corresponde. Si el evento contiene `ubicacion`, la muestra dentro del bloque.
 
+#### `src/js/mini-calendar-view.js`
+
+Renderiza el mini calendario del panel derecho con el mismo estado de la vista principal. En Mes y Día resalta solamente `selectedDate`; en Semana reutiliza `getWeekDates()` para marcar de lunes a domingo como una banda continua y distingue `selectedDate` con un azul más intenso. Usa `visibleMonth` en la vista Mes y el mes de `selectedDate` en Semana o Día, incluyendo correctamente los días adyacentes cuando la semana cruza de mes. Sus flechas reutilizan la navegación principal y el encabezado indica la vista activa.
+
 #### `src/js/upcoming-events-view.js`
 
-Ordena y muestra los eventos cuya fecha es igual o posterior al día actual. Cuando no hay resultados genera un estado vacío accesible. Esta vista no altera los datos almacenados.
+Filtra y ordena los eventos correspondientes al periodo activo: el mes visible en Mes, los siete días seleccionados en Semana o la fecha seleccionada en Día. Presenta el total y cada evento como una fila identificada por el color de su categoría. Cuando no hay resultados genera un estado vacío accesible. Esta vista no altera los datos almacenados.
 
 ### Formato actual de un evento
 

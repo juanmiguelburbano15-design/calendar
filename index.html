@@ -124,12 +124,41 @@
         </section>
       </main>
 
-      <aside class="upcoming-panel" aria-labelledby="upcoming-title">
-        <header class="panel-header">
-          <p class="eyebrow">Agenda</p>
-          <h2 id="upcoming-title">Próximos eventos</h2>
-        </header>
-        <div id="upcoming-events" aria-live="polite"></div>
+      <aside class="upcoming-panel" aria-label="Resumen del calendario">
+        <section class="right-panel-card" aria-labelledby="mini-calendar-view-title mini-calendar-title">
+          <header class="panel-header panel-header--inline">
+            <h2 id="mini-calendar-view-title">Vista mensual</h2>
+            <span class="panel-header__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+              </svg>
+            </span>
+          </header>
+          <div class="mini-calendar-toolbar">
+            <h3 id="mini-calendar-title">Mes actual</h3>
+            <div class="mini-calendar-navigation" aria-label="Navegación del mini calendario">
+              <button id="mini-calendar-previous" type="button" aria-label="Ver periodo anterior">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </button>
+              <button id="mini-calendar-next" type="button" aria-label="Ver periodo siguiente">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="mini-calendar" aria-live="polite"></div>
+        </section>
+
+        <section class="right-panel-card" aria-labelledby="upcoming-title">
+          <header class="panel-header panel-header--inline">
+            <h2 id="upcoming-title">Eventos del mes</h2>
+            <span id="upcoming-count" class="event-total">0 eventos</span>
+          </header>
+          <div id="upcoming-events" aria-live="polite"></div>
+        </section>
       </aside>
     </div>
 
@@ -139,6 +168,7 @@
     <script src="src/js/calendar-view.js" defer></script>
     <script src="src/js/timeline-utils.js" defer></script>
     <script src="src/js/time-grid-view.js" defer></script>
+    <script src="src/js/mini-calendar-view.js" defer></script>
     <script src="src/js/upcoming-events-view.js" defer></script>
     <script src="script.js" defer></script>
   </body>
