@@ -11,7 +11,7 @@
   <body>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Navegación principal">
-        <a class="brand" href="#calendario" aria-label="Ir al calendario">
+        <a class="brand" href="#calendario" aria-label="Ir al calendario" data-module-target="calendar">
           <span class="brand__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" focusable="false">
               <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/>
@@ -21,7 +21,7 @@
         </a>
 
         <nav class="main-nav" aria-label="Secciones de la aplicación">
-          <a class="nav-item nav-item--active" href="#calendario" aria-current="page">
+          <a class="nav-item nav-item--active" href="#calendario" aria-current="page" data-module-target="calendar">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
             </svg>
@@ -36,30 +36,24 @@
             <span class="nav-item__badge">Pronto</span>
           </button>
 
-          <button class="nav-item" type="button" disabled title="Módulo disponible próximamente">
+          <button class="nav-item" type="button" data-module-target="settings">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.57V21h-4v-.06a1.7 1.7 0 0 0-1.03-1.57 1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.57-1.03H3v-4h.03A1.7 1.7 0 0 0 4.6 8.94a1.7 1.7 0 0 0-.34-1.88L4.2 7l2.83-2.83.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 10 3h4a1.7 1.7 0 0 0 1.03 1.57 1.7 1.7 0 0 0 1.88-.34l.06-.06L19.8 7l-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 21 9.97V14a1.7 1.7 0 0 0-1.6 1Z" />
             </svg>
             <span>Configuración</span>
-            <span class="nav-item__badge">Pronto</span>
           </button>
         </nav>
 
         <section class="categories" aria-labelledby="categories-title">
-          <h2 id="categories-title">Categorías</h2>
-          <ul class="category-list">
-            <li><span class="category-dot category-dot--university"></span>Universidad</li>
-            <li>
-              <span class="category-dot category-dot--work"></span>Trabajo
-            </li>
-            <li>
-              <span class="category-dot category-dot--personal"></span>Personal
-            </li>
-            <li>
-              <span class="category-dot category-dot--health"></span>Salud
-            </li>
-            <li><span class="category-dot category-dot--other"></span>Otros</li>
-          </ul>
+          <div class="categories__header">
+            <h2 id="categories-title">Categorías</h2>
+            <button id="sidebar-add-category" class="categories__add" type="button" aria-label="Crear categoría" title="Crear categoría">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
+          <ul id="sidebar-category-list" class="category-list"></ul>
         </section>
       </aside>
 
@@ -106,7 +100,7 @@
           <div id="month-view" class="calendar-view-panel">
             <div class="calendar-scroll" tabindex="0" aria-label="Calendario desplazable en pantallas pequeñas">
               <div class="calendar-grid">
-                <div class="weekdays" aria-hidden="true">
+                <div id="calendar-weekdays" class="weekdays" aria-hidden="true">
                   <span>Lun</span>
                   <span>Mar</span>
                   <span>Mié</span>
@@ -121,6 +115,64 @@
           </div>
 
           <div id="time-grid-view" class="calendar-view-panel" aria-live="polite" hidden></div>
+        </section>
+      </main>
+
+      <main id="configuracion" class="settings-workspace" hidden>
+        <section class="settings-card" aria-labelledby="settings-title">
+          <header class="settings-header">
+            <p class="eyebrow">Preferencias</p>
+            <h1 id="settings-title">Configuración</h1>
+            <p>Personaliza la forma en que se presenta tu calendario.</p>
+          </header>
+
+          <section class="settings-section" aria-labelledby="appearance-title">
+            <h2 id="appearance-title">Apariencia</h2>
+            <div class="settings-option">
+              <label for="theme-select">
+                <strong>Tema visual</strong>
+                <span>Elige la paleta visual de la aplicación.</span>
+              </label>
+              <select id="theme-select">
+                <option value="light" selected>Claro</option>
+                <option value="dark">Oscuro</option>
+                <option value="midnight">Medianoche</option>
+                <option value="forest">Bosque</option>
+                <option value="lavender">Lavanda</option>
+                <option value="sakura">Sakura</option>
+                <option value="sand">Arena</option>
+                <option value="graphite">Grafito</option>
+              </select>
+            </div>
+            <div class="settings-option">
+              <label for="first-day-select">
+                <strong>Primer día de la semana</strong>
+                <span>Define cómo se ordenan las vistas Mes y Semana.</span>
+              </label>
+              <select id="first-day-select">
+                <option value="monday">Lunes</option>
+                <option value="sunday">Domingo</option>
+              </select>
+            </div>
+          </section>
+
+          <section class="settings-section" aria-labelledby="settings-categories-title">
+            <div class="settings-section__header">
+              <div>
+                <h2 id="settings-categories-title">Categorías</h2>
+                <p>Crea y ajusta las categorías utilizadas por tus eventos.</p>
+              </div>
+              <button id="settings-add-category" class="primary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Nueva categoría
+              </button>
+            </div>
+            <div id="settings-categories" class="settings-category-list"></div>
+          </section>
+
+          <p id="settings-feedback" class="settings-feedback" role="status" aria-live="polite" hidden></p>
         </section>
       </main>
 
@@ -162,14 +214,86 @@
       </aside>
     </div>
 
+    <div id="category-modal" class="modal" hidden>
+      <div class="modal__backdrop" data-close-category-modal></div>
+      <section class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="category-modal-title">
+        <header class="modal__header">
+          <h2 id="category-modal-title">Nueva categoría</h2>
+          <button id="category-close" class="settings-icon-button" type="button" aria-label="Cerrar formulario">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </header>
+        <form id="category-form" class="category-form" novalidate>
+          <label for="category-name">Nombre</label>
+          <input id="category-name" name="name" type="text" maxlength="40" autocomplete="off" required />
+
+          <label for="category-color">Color</label>
+          <div class="category-color-field">
+            <input id="category-color" name="color" type="color" required />
+            <output id="category-color-value" for="category-color"></output>
+          </div>
+
+          <p id="category-form-error" class="form-error" role="alert"></p>
+          <div class="modal__actions">
+            <button id="category-cancel" class="secondary-button" type="button">Cancelar</button>
+            <button class="primary-button" type="submit">Guardar</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="confirmation-modal" class="confirmation-modal" hidden>
+      <div class="confirmation-modal__backdrop" data-confirmation-cancel></div>
+      <section
+        class="confirmation-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmation-title"
+        aria-describedby="confirmation-message confirmation-description"
+      >
+        <button
+          id="confirmation-close"
+          class="confirmation-dialog__close"
+          type="button"
+          aria-label="Cerrar confirmación"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 6l12 12M18 6 6 18" />
+          </svg>
+        </button>
+
+        <div class="confirmation-dialog__icon" aria-hidden="true">
+          <span></span>
+        </div>
+        <h2 id="confirmation-title">Confirmar acción</h2>
+        <p id="confirmation-message" class="confirmation-dialog__message"></p>
+        <p id="confirmation-description" class="confirmation-dialog__description"></p>
+        <p id="confirmation-error" class="confirmation-dialog__error" role="alert" hidden></p>
+
+        <div class="confirmation-dialog__actions">
+          <button id="confirmation-cancel" class="confirmation-dialog__cancel" type="button">Cancelar</button>
+          <button id="confirmation-accept" class="confirmation-dialog__confirm" type="button">
+            <span class="confirmation-dialog__button-icon" aria-hidden="true"></span>
+            <span id="confirmation-label">Confirmar</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
     <noscript>Necesitas habilitar JavaScript para utilizar el calendario.</noscript>
     <script src="src/js/date-utils.js" defer></script>
+    <script src="src/js/settings-storage.js" defer></script>
+    <script src="src/js/category-storage.js" defer></script>
     <script src="src/js/event-storage.js" defer></script>
     <script src="src/js/calendar-view.js" defer></script>
     <script src="src/js/timeline-utils.js" defer></script>
     <script src="src/js/time-grid-view.js" defer></script>
     <script src="src/js/mini-calendar-view.js" defer></script>
     <script src="src/js/upcoming-events-view.js" defer></script>
+    <script src="src/js/confirmation-dialog.js" defer></script>
+    <script src="src/js/settings-view.js" defer></script>
     <script src="script.js" defer></script>
   </body>
 </html>

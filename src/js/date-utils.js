@@ -46,17 +46,26 @@
     return createLocalDate(date.getFullYear(), date.getMonth(), date.getDate() + amount);
   }
 
-  /** @param {Date} date @returns {Date} Lunes de la semana que contiene la fecha. */
-  function startOfWeek(date) {
-    const daysFromMonday = (date.getDay() + 6) % 7;
-    return addDays(date, -daysFromMonday);
+  /**
+   * @param {Date} date Fecha de referencia.
+   * @param {"monday"|"sunday"} [firstDayOfWeek="monday"] Inicio configurado.
+   * @returns {Date} Primer día de la semana que contiene la fecha.
+   */
+  function startOfWeek(date, firstDayOfWeek = "monday") {
+    const firstDayIndex = firstDayOfWeek === "sunday" ? 0 : 1;
+    const daysFromStart = (date.getDay() - firstDayIndex + 7) % 7;
+    return addDays(date, -daysFromStart);
   }
 
-  /** @param {Date} date @returns {Date[]} Siete fechas consecutivas de lunes a domingo. */
-  function getWeekDates(date) {
-    const monday = startOfWeek(date);
+  /**
+   * @param {Date} date Fecha de referencia.
+   * @param {"monday"|"sunday"} [firstDayOfWeek="monday"] Inicio configurado.
+   * @returns {Date[]} Siete fechas consecutivas en el orden configurado.
+   */
+  function getWeekDates(date, firstDayOfWeek = "monday") {
+    const weekStart = startOfWeek(date, firstDayOfWeek);
 
-    return Array.from({ length: 7 }, (_, index) => addDays(monday, index));
+    return Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
   }
 
   /** @param {Date} date @returns {string} Clave local con formato `YYYY-MM-DD`. */
@@ -114,16 +123,18 @@
   /**
    * Genera todas las fechas necesarias para completar la cuadrícula mensual.
    *
-   * Incluye los días adyacentes desde el lunes inicial hasta el domingo final.
+   * Incluye los días adyacentes según el inicio semanal configurado.
    *
    * @param {Date} monthDate Cualquier fecha del mes que se desea mostrar.
+   * @param {"monday"|"sunday"} [firstDayOfWeek="monday"] Inicio configurado.
    * @returns {Date[]} Fechas completas de la cuadrícula.
    */
-  function getMonthGridDates(monthDate) {
+  function getMonthGridDates(monthDate, firstDayOfWeek = "monday") {
     const firstDay = startOfMonth(monthDate);
     const lastDay = createLocalDate(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
-    const leadingDays = (firstDay.getDay() + 6) % 7;
-    const trailingDays = 6 - ((lastDay.getDay() + 6) % 7);
+    const firstDayIndex = firstDayOfWeek === "sunday" ? 0 : 1;
+    const leadingDays = (firstDay.getDay() - firstDayIndex + 7) % 7;
+    const trailingDays = 6 - ((lastDay.getDay() - firstDayIndex + 7) % 7);
     const daysInMonth = lastDay.getDate();
     const totalDays = leadingDays + daysInMonth + trailingDays;
     const gridStart = createLocalDate(firstDay.getFullYear(), firstDay.getMonth(), 1 - leadingDays);
@@ -170,6 +181,21 @@
     }).format(date).replace(".", ""));
   }
 
+  /**
+   * @param {"monday"|"sunday"} [firstDayOfWeek="monday"] Inicio configurado.
+   * @param {boolean} [singleLetter=false] Devuelve iniciales para el mini calendario.
+   * @returns {string[]} Etiquetas de días en el orden configurado.
+   */
+  function getWeekdayLabels(firstDayOfWeek = "monday", singleLetter = false) {
+    const mondayLabels = singleLetter
+      ? ["L", "M", "M", "J", "V", "S", "D"]
+      : ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+    return firstDayOfWeek === "sunday"
+      ? [mondayLabels[6], ...mondayLabels.slice(0, 6)]
+      : mondayLabels;
+  }
+
   /** @param {Date} date @returns {string} Día y mes abreviado. */
   function formatDayAndMonth(date) {
     return new Intl.DateTimeFormat("es-CO", {
@@ -187,10 +213,11 @@
    * Construye el intervalo legible de la semana que contiene una fecha.
    *
    * @param {Date} date Fecha contenida en la semana.
+   * @param {"monday"|"sunday"} [firstDayOfWeek="monday"] Inicio configurado.
    * @returns {string} Intervalo semanal adaptado a cambios de mes o año.
    */
-  function formatWeekTitle(date) {
-    const weekDates = getWeekDates(date);
+  function formatWeekTitle(date, firstDayOfWeek = "monday") {
+    const weekDates = getWeekDates(date, firstDayOfWeek);
     const start = weekDates[0];
     const end = weekDates[6];
     const sameYear = start.getFullYear() === end.getFullYear();
@@ -232,6 +259,7 @@
       getDateKey,
       getMonthGridDates,
       getWeekDates,
+      getWeekdayLabels,
       isSameDay,
       isSameMonth,
       parseDateKey,

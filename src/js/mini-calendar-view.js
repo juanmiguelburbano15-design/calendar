@@ -2,7 +2,6 @@
  * Mini calendario sincronizado del panel derecho.
  */
 (function initializeMiniCalendarView(global) {
-  const WEEKDAYS = Object.freeze(["L", "M", "M", "J", "V", "S", "D"]);
   const VIEW_TITLES = Object.freeze({
     day: "Vista diaria",
     month: "Vista mensual",
@@ -45,15 +44,21 @@
      * @param {"month"|"week"|"day"} state.activeView Vista activa.
      * @param {Date} state.selectedDate Fecha seleccionada.
      * @param {Date} state.visibleMonth Mes visible en la vista mensual.
+     * @param {{firstDayOfWeek: "monday"|"sunday"}} state.settings Preferencias.
      * @returns {void}
      */
-    render({ activeView, selectedDate, visibleMonth }) {
+    render({ activeView, selectedDate, visibleMonth, settings }) {
       const { dateUtils } = global.CalendarApp;
       const contextMonth = activeView === "month"
         ? visibleMonth
         : dateUtils.startOfMonth(selectedDate);
-      const dates = dateUtils.getMonthGridDates(contextMonth);
-      const selectedKeys = this.getSelectedKeys(activeView, selectedDate);
+      const dates = dateUtils.getMonthGridDates(contextMonth, settings.firstDayOfWeek);
+      const selectedKeys = this.getSelectedKeys(activeView, selectedDate, settings.firstDayOfWeek);
+      const selectedWeek = activeView === "week"
+        ? dateUtils.getWeekDates(selectedDate, settings.firstDayOfWeek)
+        : [];
+      const weekStartKey = selectedWeek.length ? dateUtils.getDateKey(selectedWeek[0]) : "";
+      const weekEndKey = selectedWeek.length ? dateUtils.getDateKey(selectedWeek[6]) : "";
       const grid = document.createElement("div");
 
       this.viewTitleElement.textContent = VIEW_TITLES[activeView];
@@ -64,7 +69,7 @@
       grid.setAttribute("role", "grid");
       grid.setAttribute("aria-label", `Mini calendario de ${dateUtils.formatMonthTitle(contextMonth)}`);
 
-      WEEKDAYS.forEach((weekday) => {
+      dateUtils.getWeekdayLabels(settings.firstDayOfWeek, true).forEach((weekday) => {
         const label = document.createElement("span");
         label.className = "mini-calendar__weekday";
         label.setAttribute("role", "columnheader");
@@ -79,6 +84,8 @@
           date,
           isAnchor: dateUtils.isSameDay(date, selectedDate),
           isSelected: selectedKeys.has(dateUtils.getDateKey(date)),
+          isWeekStart: dateUtils.getDateKey(date) === weekStartKey,
+          isWeekEnd: dateUtils.getDateKey(date) === weekEndKey,
         }));
       });
 
@@ -100,12 +107,13 @@
     /**
      * @param {"month"|"week"|"day"} activeView Vista activa.
      * @param {Date} selectedDate Fecha seleccionada.
+     * @param {"monday"|"sunday"} firstDayOfWeek Inicio configurado.
      * @returns {Set<string>} Claves de los días que deben resaltarse.
      */
-    getSelectedKeys(activeView, selectedDate) {
+    getSelectedKeys(activeView, selectedDate, firstDayOfWeek) {
       const { dateUtils } = global.CalendarApp;
       const selectedDates = activeView === "week"
-        ? dateUtils.getWeekDates(selectedDate)
+        ? dateUtils.getWeekDates(selectedDate, firstDayOfWeek)
         : [selectedDate];
 
       return new Set(selectedDates.map(dateUtils.getDateKey));
@@ -120,9 +128,11 @@
      * @param {Date} options.date Fecha representada.
      * @param {boolean} options.isAnchor Indica si es la fecha principal seleccionada.
      * @param {boolean} options.isSelected Indica si pertenece a la selección.
+     * @param {boolean} options.isWeekStart Indica el inicio visual de la banda.
+     * @param {boolean} options.isWeekEnd Indica el final visual de la banda.
      * @returns {HTMLSpanElement} Celda lista para insertar.
      */
-    createDay({ activeView, contextMonth, date, isAnchor, isSelected }) {
+    createDay({ activeView, contextMonth, date, isAnchor, isSelected, isWeekStart, isWeekEnd }) {
       const { dateUtils } = global.CalendarApp;
       const day = document.createElement("span");
       const isWeekSelection = activeView === "week" && isSelected;
@@ -142,10 +152,10 @@
         if (isAnchor) {
           day.classList.add("mini-calendar__day--week-anchor");
         }
-        if (date.getDay() === 1) {
+        if (isWeekStart) {
           day.classList.add("mini-calendar__day--week-start");
         }
-        if (date.getDay() === 0) {
+        if (isWeekEnd) {
           day.classList.add("mini-calendar__day--week-end");
         }
       } else if (isSelected) {

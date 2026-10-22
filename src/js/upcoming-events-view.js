@@ -39,12 +39,14 @@
      * @param {CalendarEvent[]} state.events Eventos disponibles.
      * @param {Date} state.selectedDate Fecha seleccionada.
      * @param {Date} state.visibleMonth Mes visible en la vista mensual.
+     * @param {CalendarCategory[]} state.categories Categorías compartidas.
+     * @param {{firstDayOfWeek: "monday"|"sunday"}} state.settings Preferencias.
      * @returns {void}
      */
-    render({ activeView, events, selectedDate, visibleMonth }) {
+    render({ activeView, events, selectedDate, visibleMonth, categories, settings }) {
       const { eventStorage } = global.CalendarApp;
       const periodEvents = eventStorage.sortEventsChronologically(
-        this.filterEvents({ activeView, events, selectedDate, visibleMonth }),
+        this.filterEvents({ activeView, events, selectedDate, visibleMonth, settings }),
       );
       const periodCopy = PERIOD_COPY[activeView];
 
@@ -63,7 +65,7 @@
       list.className = "upcoming-list";
 
       periodEvents.forEach((event) => {
-        list.append(this.createEventItem(event));
+        list.append(this.createEventItem(event, categories));
       });
 
       this.container.append(list);
@@ -77,9 +79,10 @@
      * @param {CalendarEvent[]} options.events Eventos disponibles.
      * @param {Date} options.selectedDate Fecha seleccionada.
      * @param {Date} options.visibleMonth Mes visible.
+     * @param {{firstDayOfWeek: "monday"|"sunday"}} options.settings Preferencias.
      * @returns {CalendarEvent[]} Eventos pertenecientes al periodo.
      */
-    filterEvents({ activeView, events, selectedDate, visibleMonth }) {
+    filterEvents({ activeView, events, selectedDate, visibleMonth, settings }) {
       const { dateUtils } = global.CalendarApp;
 
       if (activeView === "month") {
@@ -91,7 +94,7 @@
 
       if (activeView === "week") {
         const weekKeys = new Set(
-          dateUtils.getWeekDates(selectedDate).map(dateUtils.getDateKey),
+          dateUtils.getWeekDates(selectedDate, settings.firstDayOfWeek).map(dateUtils.getDateKey),
         );
         return events.filter((event) => weekKeys.has(event.fecha));
       }
@@ -123,10 +126,11 @@
 
     /**
      * @param {CalendarEvent} event Evento que se desea presentar.
+     * @param {CalendarCategory[]} categories Categorías compartidas.
      * @returns {HTMLLIElement} Elemento listo para agregar al listado.
      */
-    createEventItem(event) {
-      const { dateUtils, normalizeCategory } = global.CalendarApp;
+    createEventItem(event, categories) {
+      const { categoryStorage, dateUtils } = global.CalendarApp;
       const item = document.createElement("li");
       const dot = document.createElement("span");
       const content = document.createElement("div");
@@ -136,10 +140,11 @@
       const eventDate = dateUtils.parseDateKey(event.fecha);
       const timeLabel = event.horaInicio ? ` · ${event.horaInicio}` : "";
       const locationLabel = event.ubicacion ? ` · ${event.ubicacion}` : "";
-      const category = normalizeCategory(event.categoria);
+      const category = categoryStorage.findCategoryForEvent(event, categories);
 
       item.className = "upcoming-event";
-      dot.className = `upcoming-event__dot upcoming-event__dot--${category}`;
+      dot.className = "upcoming-event__dot";
+      categoryStorage.applyCategoryColor(dot, category, false);
       dot.setAttribute("aria-hidden", "true");
       title.textContent = event.titulo;
       metadata.textContent = `${dateUtils.formatUpcomingDate(eventDate)}${timeLabel}${locationLabel}`;

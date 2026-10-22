@@ -1,5 +1,5 @@
 /**
- * Vista mensual del calendario y normalización visual de categorías.
+ * Vista mensual del calendario.
  */
 (function initializeCalendarView(global) {
   const CATEGORY_CLASS = Object.freeze({
@@ -32,11 +32,13 @@
      * @param {Object} options Dependencias de la vista.
      * @param {HTMLElement} options.titleElement Elemento que muestra el periodo.
      * @param {HTMLElement} options.daysElement Contenedor de las celdas mensuales.
+     * @param {HTMLElement} options.weekdaysElement Encabezado de días de la semana.
      * @param {(date: Date) => void} options.onSelectDate Acción al elegir una fecha.
      */
-    constructor({ titleElement, daysElement, onSelectDate }) {
+    constructor({ titleElement, daysElement, weekdaysElement, onSelectDate }) {
       this.titleElement = titleElement;
       this.daysElement = daysElement;
+      this.weekdaysElement = weekdaysElement;
       this.onSelectDate = onSelectDate;
     }
 
@@ -47,15 +49,24 @@
      * @param {Date} state.visibleMonth Mes que se debe mostrar.
      * @param {Date} state.selectedDate Fecha seleccionada.
      * @param {CalendarEvent[]} state.events Eventos disponibles.
+     * @param {CalendarCategory[]} state.categories Categorías compartidas.
+     * @param {{firstDayOfWeek: "monday"|"sunday"}} state.settings Preferencias.
      * @returns {void}
      */
-    render({ visibleMonth, selectedDate, events }) {
+    render({ visibleMonth, selectedDate, events, categories, settings }) {
       const { dateUtils } = global.CalendarApp;
       const today = new Date();
-      const dates = dateUtils.getMonthGridDates(visibleMonth);
+      const dates = dateUtils.getMonthGridDates(visibleMonth, settings.firstDayOfWeek);
       const eventsByDate = this.groupEventsByDate(events);
 
       this.titleElement.textContent = dateUtils.formatMonthTitle(visibleMonth);
+      this.weekdaysElement.replaceChildren(...dateUtils
+        .getWeekdayLabels(settings.firstDayOfWeek)
+        .map((weekday) => {
+          const label = document.createElement("span");
+          label.textContent = weekday;
+          return label;
+        }));
       this.daysElement.replaceChildren();
 
       dates.forEach((date) => {
@@ -64,6 +75,7 @@
         const dayButton = this.createDayButton({
           date,
           dayEvents,
+          categories,
           isCurrentMonth: dateUtils.isSameMonth(date, visibleMonth),
           isSelected: dateUtils.isSameDay(date, selectedDate),
           isToday: dateUtils.isSameDay(date, today),
@@ -92,13 +104,14 @@
      * @param {Object} options Datos visuales del día.
      * @param {Date} options.date Fecha representada.
      * @param {CalendarEvent[]} options.dayEvents Eventos de la fecha.
+     * @param {CalendarCategory[]} options.categories Categorías compartidas.
      * @param {boolean} options.isCurrentMonth Indica si pertenece al mes visible.
      * @param {boolean} options.isSelected Indica si es la fecha seleccionada.
      * @param {boolean} options.isToday Indica si es el día actual.
      * @returns {HTMLButtonElement} Celda mensual lista para insertar.
      */
-    createDayButton({ date, dayEvents, isCurrentMonth, isSelected, isToday }) {
-      const { dateUtils } = global.CalendarApp;
+    createDayButton({ date, dayEvents, categories, isCurrentMonth, isSelected, isToday }) {
+      const { categoryStorage, dateUtils } = global.CalendarApp;
       const button = document.createElement("button");
       const number = document.createElement("span");
       const eventsContainer = document.createElement("span");
@@ -131,7 +144,9 @@
 
       dayEvents.slice(0, 2).forEach((event) => {
         const eventChip = document.createElement("span");
-        eventChip.className = `event-chip event-chip--${normalizeCategory(event.categoria)}`;
+        const category = categoryStorage.findCategoryForEvent(event, categories);
+        eventChip.className = "event-chip";
+        categoryStorage.applyCategoryColor(eventChip, category);
         eventChip.textContent = event.titulo;
         eventChip.title = event.titulo;
         eventsContainer.append(eventChip);

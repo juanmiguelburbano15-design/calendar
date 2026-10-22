@@ -15,6 +15,7 @@
    * @property {string} fecha Fecha local con formato `YYYY-MM-DD`.
    * @property {string} horaInicio Hora inicial con formato `HH:mm`.
    * @property {string} horaFin Hora final con formato `HH:mm`.
+   * @property {string} categoriaId Identificador estable de categoría, si existe.
    * @property {string} categoria Categoría utilizada por el sistema visual.
    * @property {string} ubicacion Ubicación opcional.
    */
@@ -53,6 +54,7 @@
       fecha: value.fecha,
       horaInicio: isText(value.horaInicio) ? value.horaInicio : "",
       horaFin: isText(value.horaFin) ? value.horaFin : "",
+      categoriaId: isText(value.categoriaId) ? value.categoriaId : "",
       categoria: isText(value.categoria) ? value.categoria : "Otros",
       ubicacion: isText(value.ubicacion) ? value.ubicacion.trim() : "",
     };

@@ -21,21 +21,25 @@
      * @param {"week"|"day"} state.mode Modo de la cuadrícula.
      * @param {Date} state.selectedDate Fecha de referencia.
      * @param {CalendarEvent[]} state.events Eventos disponibles.
+     * @param {CalendarCategory[]} state.categories Categorías compartidas.
+     * @param {{firstDayOfWeek: "monday"|"sunday"}} state.settings Preferencias.
      * @returns {void}
      */
-    render({ mode, selectedDate, events }) {
+    render({ mode, selectedDate, events, categories, settings }) {
       const { dateUtils, timelineUtils } = global.CalendarApp;
-      const dates = mode === "week" ? dateUtils.getWeekDates(selectedDate) : [selectedDate];
+      const dates = mode === "week"
+        ? dateUtils.getWeekDates(selectedDate, settings.firstDayOfWeek)
+        : [selectedDate];
       const dateKeys = new Set(dates.map(dateUtils.getDateKey));
       const visibleEvents = events.filter((event) => dateKeys.has(event.fecha));
       const range = timelineUtils.getVisibleRange(visibleEvents);
       const section = document.createElement("section");
       const header = this.createHeader(dates, selectedDate);
       const scrollArea = document.createElement("div");
-      const body = this.createBody(dates, visibleEvents, range);
+      const body = this.createBody(dates, visibleEvents, range, categories);
 
       this.titleElement.textContent = mode === "week"
-        ? dateUtils.formatWeekTitle(selectedDate)
+        ? dateUtils.formatWeekTitle(selectedDate, settings.firstDayOfWeek)
         : dateUtils.formatDayTitle(selectedDate);
 
       section.className = `time-grid-view time-grid-view--${mode}`;
@@ -96,9 +100,10 @@
      * @param {Date[]} dates Fechas visibles.
      * @param {CalendarEvent[]} events Eventos ya filtrados al periodo.
      * @param {{startMinutes: number, endMinutes: number}} range Intervalo horario.
+     * @param {CalendarCategory[]} categories Categorías compartidas.
      * @returns {HTMLDivElement} Cuerpo completo de la cuadrícula.
      */
-    createBody(dates, events, range) {
+    createBody(dates, events, range, categories) {
       const { dateUtils, timelineUtils } = global.CalendarApp;
       const body = document.createElement("div");
       const timeLabels = document.createElement("div");
@@ -140,7 +145,7 @@
         });
 
         timelineUtils.layoutOverlappingEvents(dayEvents).forEach((interval) => {
-          column.append(this.createEventBlock(interval, range));
+          column.append(this.createEventBlock(interval, range, categories));
         });
 
         if (dateUtils.isSameDay(date, today)) {
@@ -162,16 +167,19 @@
     /**
      * @param {Object} interval Evento con intervalo y carril calculados.
      * @param {{startMinutes: number, endMinutes: number}} range Intervalo horario.
+     * @param {CalendarCategory[]} categories Categorías compartidas.
      * @returns {HTMLElement} Bloque visual posicionado del evento.
      */
-    createEventBlock(interval, range) {
-      const { normalizeCategory, timelineUtils } = global.CalendarApp;
+    createEventBlock(interval, range, categories) {
+      const { categoryStorage, timelineUtils } = global.CalendarApp;
       const metrics = timelineUtils.getBlockMetrics(interval, range);
+      const category = categoryStorage.findCategoryForEvent(interval.event, categories);
       const eventBlock = document.createElement("article");
       const time = document.createElement("span");
       const title = document.createElement("strong");
 
-      eventBlock.className = `timeline-event timeline-event--${normalizeCategory(interval.event.categoria)}`;
+      eventBlock.className = "timeline-event";
+      categoryStorage.applyCategoryColor(eventBlock, category);
       eventBlock.style.top = `${metrics.top}px`;
       eventBlock.style.height = `${metrics.height}px`;
       eventBlock.style.left = `calc(${metrics.leftPercentage}% + 0.2rem)`;
